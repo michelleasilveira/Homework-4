@@ -4,7 +4,7 @@
     "href": "pages/combining.html",
     "title": "Combining Excel and Delimited Data",
     "section": "",
-    "text": "Answers go here!",
+    "text": "library(tidyverse)\n\nWarning: package 'tidyverse' was built under R version 4.4.3\n\n\nWarning: package 'ggplot2' was built under R version 4.4.3\n\n\nWarning: package 'tibble' was built under R version 4.4.3\n\n\nWarning: package 'tidyr' was built under R version 4.4.3\n\n\nWarning: package 'readr' was built under R version 4.4.3\n\n\nWarning: package 'purrr' was built under R version 4.4.3\n\n\nWarning: package 'dplyr' was built under R version 4.4.3\n\n\nWarning: package 'stringr' was built under R version 4.4.3\n\n\nWarning: package 'forcats' was built under R version 4.4.3\n\n\nWarning: package 'lubridate' was built under R version 4.4.3\n\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.5.1     ✔ tibble    3.2.1\n✔ lubridate 1.9.4     ✔ tidyr     1.3.1\n✔ purrr     1.0.4     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(readxl)\n\nWarning: package 'readxl' was built under R version 4.4.3",
     "crumbs": [
       "Home",
       "Combining Excel and Delimited Data"
@@ -74,6 +74,72 @@
     "crumbs": [
       "Home",
       "Reading Delimited Data"
+    ]
+  },
+  {
+    "objectID": "pages/combining.html#white-wine-excel",
+    "href": "pages/combining.html#white-wine-excel",
+    "title": "Combining Excel and Delimited Data",
+    "section": "1) White wine (Excel)",
+    "text": "1) White wine (Excel)\nThe assignment asks you to download the Excel file locally. To make this file self‑contained, the chunk below will download it automatically to a data/ folder if it isn’t already present.\n\n# Paths and URLs\ndata_dir &lt;- \"data\"\ndir.create(data_dir, showWarnings = FALSE, recursive = TRUE)\n\nwhite_xlsx_url  &lt;- \"https://www4.stat.ncsu.edu/~online/datasets/white-wine.xlsx\"\nwhite_xlsx_path &lt;- file.path(data_dir, \"white-wine.xlsx\")\n\nif (!file.exists(white_xlsx_path)) {\n  download.file(white_xlsx_url, destfile = white_xlsx_path, mode = \"wb\")\n}\nwhite_xlsx_path\n\n[1] \"data/white-wine.xlsx\"\n\n\n\n1a) Import the first sheet and print the tibble\n\nwhite_wine &lt;- read_excel(white_xlsx_path, sheet = 1)\nwhite_wine\n\n# A tibble: 4,898 × 12\n   `fixed acidity` `volatile acidity` `citric acid` `residual sugar` chlorides\n             &lt;dbl&gt;              &lt;dbl&gt;         &lt;dbl&gt;            &lt;dbl&gt;     &lt;dbl&gt;\n 1               7               0.27          0.36             20.7     0.045\n 2              63               0.3           0.34              1.6     0.049\n 3              81               0.28          0.4               6.9     0.05 \n 4              72               0.23          0.32              8.5     0.058\n 5              72               0.23          0.32              8.5     0.058\n 6              81               0.28          0.4               6.9     0.05 \n 7              62               0.32          0.16              7       0.045\n 8               7               0.27          0.36             20.7     0.045\n 9              63               0.3           0.34              1.6     0.049\n10              81               0.22          0.43              1.5     0.044\n# ℹ 4,888 more rows\n# ℹ 7 more variables: `free sulfur dioxide` &lt;dbl&gt;,\n#   `total sulfur dioxide` &lt;dbl&gt;, density &lt;dbl&gt;, pH &lt;dbl&gt;, sulphates &lt;dbl&gt;,\n#   alcohol &lt;dbl&gt;, quality &lt;dbl&gt;\n\n\n\nYou may notice some names are shown with backticks (spaces in names). We’ll replace them using the alternative names provided in sheet 2.\n\n\n\n1b) Read sheet 2 (alternative variable names) and overwrite the column names\n\nalt_names &lt;- read_excel(white_xlsx_path, sheet = 2, col_names = TRUE) |&gt; \n  dplyr::pull(1) |&gt; \n  as.character()\n\n# make sure lengths match\nstopifnot(length(alt_names) == ncol(white_wine))\n\ncolnames(white_wine) &lt;- alt_names\n\n# Add a 'type' column\nwhite_wine &lt;- white_wine |&gt; mutate(type = \"white\")\n\nglimpse(white_wine)\n\nRows: 4,898\nColumns: 13\n$ fixed_acidity        &lt;dbl&gt; 7, 63, 81, 72, 72, 81, 62, 7, 63, 81, 81, 86, 79,…\n$ volatile_acidity     &lt;dbl&gt; 0.27, 0.30, 0.28, 0.23, 0.23, 0.28, 0.32, 0.27, 0…\n$ citric_acid          &lt;dbl&gt; 0.36, 0.34, 0.40, 0.32, 0.32, 0.40, 0.16, 0.36, 0…\n$ residual_sugar       &lt;dbl&gt; 20.70, 1.60, 6.90, 8.50, 8.50, 6.90, 7.00, 20.70,…\n$ chlorides            &lt;dbl&gt; 0.045, 0.049, 0.050, 0.058, 0.058, 0.050, 0.045, …\n$ free_sulfur_dioxide  &lt;dbl&gt; 45, 14, 30, 47, 47, 30, 30, 45, 14, 28, 11, 17, 1…\n$ total_sulfur_dioxide &lt;dbl&gt; 170, 132, 97, 186, 186, 97, 136, 170, 132, 129, 6…\n$ density              &lt;dbl&gt; 1.0010, 0.9940, 0.9951, 0.9956, 0.9956, 0.9951, 0…\n$ pH                   &lt;dbl&gt; 3, 33, 326, 319, 319, 326, 318, 3, 33, 322, 299, …\n$ sulphates            &lt;dbl&gt; 0.45, 0.49, 0.44, 0.40, 0.40, 0.44, 0.47, 0.45, 0…\n$ alcohol              &lt;dbl&gt; 88, 95, 101, 99, 99, 101, 96, 88, 95, 11, 12, 97,…\n$ quality              &lt;dbl&gt; 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 7, 5, 7, 6…\n$ type                 &lt;chr&gt; \"white\", \"white\", \"white\", \"white\", \"white\", \"whi…",
+    "crumbs": [
+      "Home",
+      "Combining Excel and Delimited Data"
+    ]
+  },
+  {
+    "objectID": "pages/combining.html#red-wine-semicolon-delimited",
+    "href": "pages/combining.html#red-wine-semicolon-delimited",
+    "title": "Combining Excel and Delimited Data",
+    "section": "2) Red wine (semi‑colon delimited)",
+    "text": "2) Red wine (semi‑colon delimited)\nSource given by the assignment:\n\nhttps://www4.stat.ncsu.edu/~online/datasets/red-wine.csv\n\n\nred_url &lt;- \"https://www4.stat.ncsu.edu/~online/datasets/red-wine.csv\"\n\n# Semi-colon delimited file\nred_wine &lt;- readr::read_delim(\n  red_url,\n  delim = \";\",\n  show_col_types = FALSE\n)\n\n# Use the same variable names as the white wine set (excluding 'type', which we add below)\n# Assumes both files have the same columns in the same order.\ncolnames(red_wine) &lt;- alt_names\n\nred_wine &lt;- red_wine |&gt; mutate(type = \"red\")\n\nglimpse(red_wine)\n\nRows: 1,599\nColumns: 13\n$ fixed_acidity        &lt;dbl&gt; 7.4, 7.8, 7.8, 11.2, 7.4, 7.4, 7.9, 7.3, 7.8, 7.5…\n$ volatile_acidity     &lt;dbl&gt; 0.700, 0.880, 0.760, 0.280, 0.700, 0.660, 0.600, …\n$ citric_acid          &lt;dbl&gt; 0.00, 0.00, 0.04, 0.56, 0.00, 0.00, 0.06, 0.00, 0…\n$ residual_sugar       &lt;dbl&gt; 1.9, 2.6, 2.3, 1.9, 1.9, 1.8, 1.6, 1.2, 2.0, 6.1,…\n$ chlorides            &lt;dbl&gt; 0.076, 0.098, 0.092, 0.075, 0.076, 0.075, 0.069, …\n$ free_sulfur_dioxide  &lt;dbl&gt; 11, 25, 15, 17, 11, 13, 15, 15, 9, 17, 15, 17, 16…\n$ total_sulfur_dioxide &lt;dbl&gt; 34, 67, 54, 60, 34, 40, 59, 21, 18, 102, 65, 102,…\n$ density              &lt;dbl&gt; 0.9978, 0.9968, 0.9970, 0.9980, 0.9978, 0.9978, 0…\n$ pH                   &lt;dbl&gt; 3.51, 3.20, 3.26, 3.16, 3.51, 3.51, 3.30, 3.39, 3…\n$ sulphates            &lt;dbl&gt; 0.56, 0.68, 0.65, 0.58, 0.56, 0.56, 0.46, 0.47, 0…\n$ alcohol              &lt;dbl&gt; 9.4, 9.8, 9.8, 9.8, 9.4, 9.4, 9.4, 10.0, 9.5, 10.…\n$ quality              &lt;dbl&gt; 5, 5, 5, 6, 5, 5, 5, 7, 7, 5, 5, 5, 5, 5, 5, 5, 7…\n$ type                 &lt;chr&gt; \"red\", \"red\", \"red\", \"red\", \"red\", \"red\", \"red\", …",
+    "crumbs": [
+      "Home",
+      "Combining Excel and Delimited Data"
+    ]
+  },
+  {
+    "objectID": "pages/combining.html#combine-the-two-data-sets",
+    "href": "pages/combining.html#combine-the-two-data-sets",
+    "title": "Combining Excel and Delimited Data",
+    "section": "3) Combine the two data sets",
+    "text": "3) Combine the two data sets\nUse dplyr::bind_rows() to stack them.\n\nwine &lt;- dplyr::bind_rows(white_wine, red_wine) |&gt; as_tibble()\nwine\n\n# A tibble: 6,497 × 13\n   fixed_acidity volatile_acidity citric_acid residual_sugar chlorides\n           &lt;dbl&gt;            &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;\n 1             7             0.27        0.36           20.7     0.045\n 2            63             0.3         0.34            1.6     0.049\n 3            81             0.28        0.4             6.9     0.05 \n 4            72             0.23        0.32            8.5     0.058\n 5            72             0.23        0.32            8.5     0.058\n 6            81             0.28        0.4             6.9     0.05 \n 7            62             0.32        0.16            7       0.045\n 8             7             0.27        0.36           20.7     0.045\n 9            63             0.3         0.34            1.6     0.049\n10            81             0.22        0.43            1.5     0.044\n# ℹ 6,487 more rows\n# ℹ 8 more variables: free_sulfur_dioxide &lt;dbl&gt;, total_sulfur_dioxide &lt;dbl&gt;,\n#   density &lt;dbl&gt;, pH &lt;dbl&gt;, sulphates &lt;dbl&gt;, alcohol &lt;dbl&gt;, quality &lt;dbl&gt;,\n#   type &lt;chr&gt;",
+    "crumbs": [
+      "Home",
+      "Combining Excel and Delimited Data"
+    ]
+  },
+  {
+    "objectID": "pages/combining.html#filter-high-quality-and-reasonable-alcohol",
+    "href": "pages/combining.html#filter-high-quality-and-reasonable-alcohol",
+    "title": "Combining Excel and Delimited Data",
+    "section": "4) Filter: high quality and reasonable alcohol",
+    "text": "4) Filter: high quality and reasonable alcohol\nThe assignment asks to keep high‑quality wines and those with a reasonable alcohol value.\nSet the thresholds below; adjust if your instructor specified slightly different cutoffs.\n\nquality_threshold &lt;- 6.5\nalcohol_upper     &lt;- 13.2   # if your spec says 13, set to 13\n\nwine_filtered &lt;- wine |&gt;\n  filter(quality &gt; quality_threshold, alcohol &lt; alcohol_upper) |&gt;\n  arrange(desc(quality))\n\nwine_filtered\n\n# A tibble: 365 × 13\n   fixed_acidity volatile_acidity citric_acid residual_sugar chlorides\n           &lt;dbl&gt;            &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;\n 1            62             0.24        0.29          13.3      0.039\n 2            73             0.21        0.29           1.6      0.034\n 3            73             0.21        0.29           1.6      0.034\n 4            53             0.24        0.33           1.3      0.033\n 5            68             0.35        0.32           2.4      0.048\n 6            64             0.15        0.36           1.8      0.034\n 7            64             0.15        0.36           1.8      0.034\n 8            68             0.46        0.26           2.7      0.042\n 9            65             0.44        0.47           5.45     0.014\n10            55             0.34        0.26           2.2      0.021\n# ℹ 355 more rows\n# ℹ 8 more variables: free_sulfur_dioxide &lt;dbl&gt;, total_sulfur_dioxide &lt;dbl&gt;,\n#   density &lt;dbl&gt;, pH &lt;dbl&gt;, sulphates &lt;dbl&gt;, alcohol &lt;dbl&gt;, quality &lt;dbl&gt;,\n#   type &lt;chr&gt;",
+    "crumbs": [
+      "Home",
+      "Combining Excel and Delimited Data"
+    ]
+  },
+  {
+    "objectID": "pages/combining.html#select-columns-those-containing-acid-plus-alcohol-type-and-quality",
+    "href": "pages/combining.html#select-columns-those-containing-acid-plus-alcohol-type-and-quality",
+    "title": "Combining Excel and Delimited Data",
+    "section": "5) Select columns: those containing \"acid\", plus alcohol, type, and quality",
+    "text": "5) Select columns: those containing \"acid\", plus alcohol, type, and quality\n\nwine_selected &lt;- wine_filtered |&gt;\n  select(contains(\"acid\"), alcohol, type, quality)\n\nwine_selected\n\n# A tibble: 365 × 6\n   fixed_acidity volatile_acidity citric_acid alcohol type  quality\n           &lt;dbl&gt;            &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;\n 1            62             0.24        0.29      11 white       8\n 2            73             0.21        0.29      11 white       8\n 3            73             0.21        0.29      11 white       8\n 4            53             0.24        0.33      11 white       8\n 5            68             0.35        0.32      12 white       8\n 6            64             0.15        0.36      11 white       8\n 7            64             0.15        0.36      11 white       8\n 8            68             0.46        0.26      12 white       8\n 9            65             0.44        0.47      13 white       8\n10            55             0.34        0.26      13 white       8\n# ℹ 355 more rows",
+    "crumbs": [
+      "Home",
+      "Combining Excel and Delimited Data"
+    ]
+  },
+  {
+    "objectID": "pages/combining.html#add-mean-and-standard-deviation-of-alcohol-for-each-quality-level",
+    "href": "pages/combining.html#add-mean-and-standard-deviation-of-alcohol-for-each-quality-level",
+    "title": "Combining Excel and Delimited Data",
+    "section": "6) Add mean and standard deviation of alcohol for each quality level",
+    "text": "6) Add mean and standard deviation of alcohol for each quality level\n\nUse group_by(quality) and mutate() so the per‑quality stats are added to every row of that group.\n\n\nwine_with_stats &lt;- wine_selected |&gt;\n  group_by(quality) |&gt;\n  mutate(\n    alcohol_mean = mean(alcohol, na.rm = TRUE),\n    alcohol_sd   = sd(alcohol, na.rm = TRUE)\n  ) |&gt;\n  ungroup()\n\nwine_with_stats\n\n# A tibble: 365 × 8\n   fixed_acidity volatile_acidity citric_acid alcohol type  quality alcohol_mean\n           &lt;dbl&gt;            &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;        &lt;dbl&gt;\n 1            62             0.24        0.29      11 white       8         11.9\n 2            73             0.21        0.29      11 white       8         11.9\n 3            73             0.21        0.29      11 white       8         11.9\n 4            53             0.24        0.33      11 white       8         11.9\n 5            68             0.35        0.32      12 white       8         11.9\n 6            64             0.15        0.36      11 white       8         11.9\n 7            64             0.15        0.36      11 white       8         11.9\n 8            68             0.46        0.26      12 white       8         11.9\n 9            65             0.44        0.47      13 white       8         11.9\n10            55             0.34        0.26      13 white       8         11.9\n# ℹ 355 more rows\n# ℹ 1 more variable: alcohol_sd &lt;dbl&gt;\n\n\n\n(Optional) Compact summary table instead of row-wise stats\n\nquality_alcohol_summary &lt;- wine_selected |&gt;\n  group_by(quality) |&gt;\n  summarise(\n    n            = n(),\n    alcohol_mean = mean(alcohol, na.rm = TRUE),\n    alcohol_sd   = sd(alcohol, na.rm = TRUE),\n    .groups = \"drop\"\n  )\n\nquality_alcohol_summary\n\n# A tibble: 2 × 4\n  quality     n alcohol_mean alcohol_sd\n    &lt;dbl&gt; &lt;int&gt;        &lt;dbl&gt;      &lt;dbl&gt;\n1       7   332         11.2      1.10 \n2       8    33         11.9      0.935",
+    "crumbs": [
+      "Home",
+      "Combining Excel and Delimited Data"
     ]
   }
 ]

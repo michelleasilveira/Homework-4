@@ -6,4 +6,154 @@ editor_options:
   chunk_output_type: inline
 ---
 
-Answers go here!
+```{r}
+#| label: setup
+library(tidyverse)
+library(readxl)
+```
+
+## 1) White wine (Excel)
+
+The assignment asks you to download the Excel file locally. To make this file self‑contained, the chunk below will **download it automatically** to a `data/` folder if it isn't already present.
+
+```{r}
+#| label: white-download
+# Paths and URLs
+data_dir <- "data"
+dir.create(data_dir, showWarnings = FALSE, recursive = TRUE)
+
+white_xlsx_url  <- "https://www4.stat.ncsu.edu/~online/datasets/white-wine.xlsx"
+white_xlsx_path <- file.path(data_dir, "white-wine.xlsx")
+
+if (!file.exists(white_xlsx_path)) {
+  download.file(white_xlsx_url, destfile = white_xlsx_path, mode = "wb")
+}
+white_xlsx_path
+```
+
+### 1a) Import the **first sheet** and print the tibble
+
+```{r}
+#| label: white-sheet1
+white_wine <- read_excel(white_xlsx_path, sheet = 1)
+white_wine
+```
+
+> You may notice some names are shown with backticks (spaces in names). We'll replace them using the alternative names provided in **sheet 2**.
+
+### 1b) Read **sheet 2** (alternative variable names) and **overwrite** the column names
+
+```{r}
+#| label: white-rename
+alt_names <- read_excel(white_xlsx_path, sheet = 2, col_names = TRUE) |> 
+  dplyr::pull(1) |> 
+  as.character()
+
+# make sure lengths match
+stopifnot(length(alt_names) == ncol(white_wine))
+
+colnames(white_wine) <- alt_names
+
+# Add a 'type' column
+white_wine <- white_wine |> mutate(type = "white")
+
+glimpse(white_wine)
+```
+
+## 2) Red wine (semi‑colon delimited)
+
+Source given by the assignment:
+
+- <https://www4.stat.ncsu.edu/~online/datasets/red-wine.csv>
+
+```{r}
+#| label: red-read
+red_url <- "https://www4.stat.ncsu.edu/~online/datasets/red-wine.csv"
+
+# Semi-colon delimited file
+red_wine <- readr::read_delim(
+  red_url,
+  delim = ";",
+  show_col_types = FALSE
+)
+
+# Use the same variable names as the white wine set (excluding 'type', which we add below)
+# Assumes both files have the same columns in the same order.
+colnames(red_wine) <- alt_names
+
+red_wine <- red_wine |> mutate(type = "red")
+
+glimpse(red_wine)
+```
+
+## 3) Combine the two data sets
+
+Use `dplyr::bind_rows()` to stack them.
+
+```{r}
+#| label: combine
+wine <- dplyr::bind_rows(white_wine, red_wine) |> as_tibble()
+wine
+```
+
+## 4) Filter: high quality and reasonable alcohol
+
+The assignment asks to keep **high‑quality wines** and those with a **reasonable alcohol value**.  
+Set the thresholds below; adjust if your instructor specified slightly different cutoffs.
+
+```{r}
+#| label: filter-sort
+quality_threshold <- 6.5
+alcohol_upper     <- 13.2   # if your spec says 13, set to 13
+
+wine_filtered <- wine |>
+  filter(quality > quality_threshold, alcohol < alcohol_upper) |>
+  arrange(desc(quality))
+
+wine_filtered
+```
+
+## 5) Select columns: those containing `"acid"`, plus `alcohol`, `type`, and `quality`
+
+```{r}
+#| label: select-cols
+wine_selected <- wine_filtered |>
+  select(contains("acid"), alcohol, type, quality)
+
+wine_selected
+```
+
+## 6) Add mean and standard deviation of `alcohol` **for each quality level**
+
+> Use `group_by(quality)` and `mutate()` so the per‑quality stats are added **to every row** of that group.
+
+```{r}
+#| label: add-stats
+wine_with_stats <- wine_selected |>
+  group_by(quality) |>
+  mutate(
+    alcohol_mean = mean(alcohol, na.rm = TRUE),
+    alcohol_sd   = sd(alcohol, na.rm = TRUE)
+  ) |>
+  ungroup()
+
+wine_with_stats
+```
+
+### (Optional) Compact summary table instead of row-wise stats
+
+```{r}
+#| label: summary-table
+quality_alcohol_summary <- wine_selected |>
+  group_by(quality) |>
+  summarise(
+    n            = n(),
+    alcohol_mean = mean(alcohol, na.rm = TRUE),
+    alcohol_sd   = sd(alcohol, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+quality_alcohol_summary
+```
+
+---
