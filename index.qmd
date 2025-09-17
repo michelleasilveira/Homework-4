@@ -1,10 +1,14 @@
 ---
 title: "Homework 4"
-format: html
-toc: TRUE
-editor_options: 
+author: "Michelle A. Silveira"
+format:
+  html:
+    toc: true
+editor_options:
   chunk_output_type: inline
 ---
+
+> This site hosts and delivers **Homework 4** for ST 558 Data Science for Statisticians (R) classes. Use the navigation to access each task and its outputs.
 
 An example pages site with multiple pages and a table of contents.
 
