@@ -6,5 +6,191 @@ editor_options:
   chunk_output_type: inline
 ---
 
+```{r}
+#| label: setup
+#| include: true
+library(tidyverse)
+```
 
-Answers go here!
+## Part A — Glass data
+
+- Source: <http://www4.stat.ncsu.edu/~online/datasets/glass.data>  
+- The raw file has **no header**. I will add the names from the description and then tidy the `class` column.
+
+### A1) Read from URL and add column names
+
+```{r}
+#| label: glass-read
+glass_url <- "http://www4.stat.ncsu.edu/~online/datasets/glass.data"
+
+glass_colnames <- c(
+  "Id","RI","Na","Mg","Al","Si","K","Ca","Ba","Fe","class_id"
+)
+
+# readr will guess it's comma-delimited; explicitly use read_csv for clarity
+glass <- readr::read_csv(
+  glass_url,
+  col_names = glass_colnames,
+  show_col_types = FALSE
+) |>
+  as_tibble()
+
+glimpse(glass)
+```
+
+### A2) Give meaningful class labels
+
+> UCI mapping (used here):  
+> 1 = building_windows_float_processed (BWFP)  
+> 2 = building_windows_non_float_processed (BWNFP)  
+> 3 = vehicle_windows_float_processed (VWFP)  
+> 4 = vehicle_windows_non_float_processed (not present in this file)  
+> 5 = containers  
+> 6 = tableware  
+> 7 = headlamp
+
+```{r}
+#| label: glass-class-labels
+class_labels <- c(
+  "building_windows_float_processed",
+  "building_windows_non_float_processed",
+  "vehicle_windows_float_processed",
+  "vehicle_windows_non_float_processed",
+  "containers",
+  "tableware",
+  "headlamp"
+)
+
+glass <- glass |>
+  mutate(
+    class = factor(class_id,
+                   levels = 1:7,
+                   labels = class_labels)
+  )
+
+count(glass, class)
+```
+
+### A3) Keep only observations meeting given conditions
+
+> Example filter used here (adjust to your assignment’s exact thresholds if needed):  
+> keep rows where `RI < 1.52` **and** `class` is either `"tableware"` or `"headlamp"`.
+
+```{r}
+#| label: glass-filter
+glass_filtered <- glass |>
+  filter(RI < 1.52, class %in% c("tableware", "headlamp")) |>
+  select(-class_id)
+
+glass_filtered |>
+  arrange(class, RI) |>
+  print(n = 20)
+```
+
+### A4) Quick summaries
+
+```{r}
+#| label: glass-summaries
+glass |>
+  summarise(
+    n = n(),
+    ri_mean = mean(RI, na.rm = TRUE),
+    ri_sd   = sd(RI, na.rm = TRUE),
+    ba_prop_nonzero = mean(Ba > 0, na.rm = TRUE)
+  )
+```
+
+---
+
+## Part B — Yeast data
+
+- Source: <http://www4.stat.ncsu.edu/~online/datasets/yeast.data>  
+- The raw file has **no tidy header** and is **whitespace-delimited**. We will supply names and parse accordingly.
+
+### B1) Read from URL and name columns
+
+> Variables used (per UCI description):  
+> `seq_name`, `mcg`, `gvh`, `alm`, `mit`, `erl`, `pox`, `vac`, `nuc`, `class`
+
+```{r}
+#| label: yeast-read
+yeast_url <- "http://www4.stat.ncsu.edu/~online/datasets/yeast.data"
+
+yeast_colnames <- c("seq_name","mcg","gvh","alm","mit","erl","pox","vac","nuc","class")
+
+# whitespace-delimited; first column is an id-like string
+yeast <- readr::read_table(
+  yeast_url,
+  col_names = yeast_colnames,
+  show_col_types = FALSE
+) |>
+  as_tibble()
+
+glimpse(yeast)
+```
+
+### B2) Clean the `seq_name` and `class` columns
+
+- Keep `seq_name` as an identifier (character).  
+- Make `class` a factor.  
+
+```{r}
+#| label: yeast-clean
+yeast <- yeast |>
+  mutate(
+    seq_name = as.character(seq_name),
+    class = factor(class)
+  )
+
+count(yeast, class)
+```
+
+### B3) For each numeric column, compute **mean** and **median**
+
+> Use `across()` with `where(is.numeric)` to apply functions to the numeric features.
+
+```{r}
+#| label: yeast-means-medians
+yeast_summary <- yeast |>
+  summarise(
+    across(where(is.numeric), list(mean = ~mean(.x, na.rm = TRUE),
+                                   median = ~median(.x, na.rm = TRUE)))
+  )
+
+yeast_summary
+```
+
+If you prefer a **long** summary table (feature × stat × value):
+
+```{r}
+#| label: yeast-summary-long
+yeast_summary_long <- yeast |>
+  summarise(
+    across(where(is.numeric),
+           list(mean = ~mean(.x, na.rm = TRUE),
+                median = ~median(.x, na.rm = TRUE)))
+  ) |>
+  pivot_longer(everything(),
+               names_to = c("feature","stat"),
+               names_sep = "_(?=[^_]+$)",
+               values_to = "value")
+
+yeast_summary_long |>
+  arrange(feature, stat) |>
+  print(n = 30)
+```
+
+### B4) (Optional) Class-wise summaries
+
+```{r}
+#| label: yeast-by-class
+yeast |>
+  group_by(class) |>
+  summarise(
+    across(where(is.numeric),
+           list(mean = ~mean(.x, na.rm = TRUE),
+                median = ~median(.x, na.rm = TRUE))),
+    .groups = "drop"
+  )
+```
+

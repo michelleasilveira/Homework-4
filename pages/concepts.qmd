@@ -6,5 +6,45 @@ editor_options:
   chunk_output_type: inline
 ---
 
+1. **If your working directory is `myfolder/homework/`, what *relative path* would you specify to get the file located at `myfolder/MyData.csv`?**  
+   - `../MyData.csv`  
+   - The `..` goes **up one folder** from `homework/` to `myfolder/`, then you reference `MyData.csv`.
 
-Answers go here!
+2. **What are the major benefits of using R Projects?**  
+   - Keep code, data, and outputs **organized** in one self‑contained folder.  
+   - The working directory is set **automatically**, avoiding hard‑coded paths.  
+   - Improves **reproducibility** and portability (easy to share or move).  
+   - Plays nicely with **version control** tools like git.
+
+3. **What is git and what is GitHub?**  
+   - **Git**: a **distributed version control system** that tracks changes, supports branching/merging, and enables collaboration.  
+   - **GitHub**: a **cloud platform** that hosts git repositories for sharing, collaboration, issues, pull requests, and CI/CD.
+
+4. **What are two main differences between a tibble and a data.frame?**  
+   - **(a)** Tibbles are **stricter/safer**: they do not convert strings to factors or change column names/types silently.  
+   - **(b)** Tibbles **print nicely**: they show the first 10 rows and fit columns to your screen, with data types indicated.
+
+5. **Rewrite the following nested function call using Base R’s chaining operator (`|>`):**
+   
+   Original (nested) call:
+   ```r
+   arrange(
+     filter(
+       select(as_tibble(iris), starts_with("Petal"), Species), 
+       Petal.Length < 1.55
+     ),
+     Species
+   )
+   ```
+
+   Using the chaining operator with tidyverse verbs:
+   ```{r}
+   library(tidyverse)
+
+   iris |>
+     as_tibble() |>
+     select(starts_with("Petal"), Species) |>
+     filter(Petal.Length < 1.55) |>
+     arrange(Species)
+   ```
+
