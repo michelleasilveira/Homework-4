@@ -180,7 +180,7 @@ yeast_summary_long |>
   print(n = 30)
 ```
 
-### B4) (Optional) Class-wise summaries
+### Class-wise summaries
 
 ```{r}
 #| label: yeast-by-class

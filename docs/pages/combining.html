@@ -211,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#select-columns-those-containing-acid-plus-alcohol-type-and-quality" id="toc-select-columns-those-containing-acid-plus-alcohol-type-and-quality" class="nav-link" data-scroll-target="#select-columns-those-containing-acid-plus-alcohol-type-and-quality">5) Select columns: those containing <code>"acid"</code>, plus <code>alcohol</code>, <code>type</code>, and <code>quality</code></a></li>
   <li><a href="#add-mean-and-standard-deviation-of-alcohol-for-each-quality-level" id="toc-add-mean-and-standard-deviation-of-alcohol-for-each-quality-level" class="nav-link" data-scroll-target="#add-mean-and-standard-deviation-of-alcohol-for-each-quality-level">6) Add mean and standard deviation of <code>alcohol</code> <strong>for each quality level</strong></a>
   <ul class="collapse">
-  <li><a href="#optional-compact-summary-table-instead-of-row-wise-stats" id="toc-optional-compact-summary-table-instead-of-row-wise-stats" class="nav-link" data-scroll-target="#optional-compact-summary-table-instead-of-row-wise-stats">(Optional) Compact summary table instead of row-wise stats</a></li>
+  <li><a href="#compact-summary-table-instead-of-row-wise-stats" id="toc-compact-summary-table-instead-of-row-wise-stats" class="nav-link" data-scroll-target="#compact-summary-table-instead-of-row-wise-stats">Compact summary table instead of row-wise stats</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -538,8 +538,8 @@ Set the thresholds below; adjust if your instructor specified slightly different
 # ℹ 1 more variable: alcohol_sd &lt;dbl&gt;</code></pre>
 </div>
 </div>
-<section id="optional-compact-summary-table-instead-of-row-wise-stats" class="level3">
-<h3 class="anchored" data-anchor-id="optional-compact-summary-table-instead-of-row-wise-stats">(Optional) Compact summary table instead of row-wise stats</h3>
+<section id="compact-summary-table-instead-of-row-wise-stats" class="level3">
+<h3 class="anchored" data-anchor-id="compact-summary-table-instead-of-row-wise-stats">Compact summary table instead of row-wise stats</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>quality_alcohol_summary <span class="ot">&lt;-</span> wine_selected <span class="sc">|&gt;</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(quality) <span class="sc">|&gt;</span></span>

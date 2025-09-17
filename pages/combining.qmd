@@ -140,7 +140,7 @@ wine_with_stats <- wine_selected |>
 wine_with_stats
 ```
 
-### (Optional) Compact summary table instead of row-wise stats
+### Compact summary table instead of row-wise stats
 
 ```{r}
 #| label: summary-table
